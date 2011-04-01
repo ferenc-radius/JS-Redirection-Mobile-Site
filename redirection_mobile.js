@@ -44,7 +44,7 @@
 	 * In that case a new key/value in sessionStorage (for modern browsers) 
 	 * will be set and until the user doesn't close browser window or tab it will access
 	 * to the desktop version from a mobile device. There is a fallback for old browsers that
-	 * don’t support sessionStorage, and it will use a cookie. The cookie will expiry in one hour 
+	 * donï¿½t support sessionStorage, and it will use a cookie. The cookie will expiry in one hour 
 	 * (default value) or you configure the expiry time.
 	 * 
 * To use this function, you need to call it as SA.redirection_mobile(config);
@@ -136,7 +136,10 @@ SA.redirection_mobile = function(config) {
 		mobile_protocol = config.mobile_scheme ?
 							config.mobile_scheme + ":" :
 								document.location.protocol,
-		
+
+        // callback called before the redirect, return true to execute the callback.
+		on_before_redirect = config.on_before_redirect || function() { return true; };
+
 		// URL host of incoming request
 		host = document.location.host,
 
@@ -182,6 +185,8 @@ SA.redirection_mobile = function(config) {
 
 	// Check that User Agent is mobile, cookie is not set or value in the sessionStorage not present
 	if (isUAMobile && !(isCookieSet || isSessionStorage)) {
-		document.location.href = mobile_protocol + "//" + mobile_host;
+		if (on_before_redirect.call(this)) {
+			document.location.href = mobile_protocol + "//" + mobile_host;
+		}
 	} 
 };	
